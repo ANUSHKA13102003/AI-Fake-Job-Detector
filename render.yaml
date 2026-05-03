@@ -24,13 +24,14 @@ services:
       - key: FRONTEND_URL
         sync: false
 
-  # ── 3. React Frontend (static site) ──────────────────────────────────────
-  - type: static_site
+  # ── 3. React Frontend (web service) ──────────────────────────────────────
+  - type: web
     name: ai-fake-job-frontend
     rootDir: frontend
     buildCommand: npm install && npm run build
-    publishDir: build
+    startCommand: npx serve -s build -l $PORT
     plan: free
+    healthCheckPath: /
     envVars:
       - key: REACT_APP_API_URL
         sync: false
