@@ -27,7 +27,6 @@ services:
   # ── 3. React Frontend (static site) ──────────────────────────────────────
   - type: static_site
     name: ai-fake-job-frontend
-    runtime: node
     rootDir: frontend
     buildCommand: npm install && npm run build
     publishDir: build
