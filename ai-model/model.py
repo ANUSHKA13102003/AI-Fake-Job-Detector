@@ -21,18 +21,23 @@ except:
 
 # ── Scam keyword categories ──────────────────────────────────────────────────
 URGENCY_KEYWORDS = [
-    "urgent", "immediately", "asap", "right away", "limited seats",
-    "limited slots", "act now", "today only", "last chance", "hurry",
-    "don't miss", "do not miss", "closing soon", "deadline today",
-    "apply now before", "spots filling fast"
+    "urgent", "immediately", "asap", "right away",
+    "limited seats", "limited slots",
+    "act now", "today only", "last chance",
+    "hurry", "closing soon", "deadline today",
+    "apply now before", "spots filling fast",
+
+    # 👉 ADD THESE NEW
+    "join today", "instant hiring", "quick joining"
 ]
 
 PAYMENT_KEYWORDS = [
-    "pay now", "upfront payment", "registration fee", "training fee",
-    "security deposit", "processing fee", "send money", "wire transfer",
-    "western union", "moneygram", "bitcoin payment", "cryptocurrency",
-    "advance payment", "pay to apply", "investment required",
-    "buy your kit", "purchase kit", "starter kit fee"
+    "pay now", "upfront payment", "registration fee",
+    "security deposit", "processing fee",
+    "send money", "wire transfer",
+
+    # 👉 ADD THESE NEW
+    "pay ₹", "fees required", "payment before joining"
 ]
 
 UNREALISTIC_SALARY = [
@@ -52,10 +57,11 @@ VAGUE_KEYWORDS = [
 ]
 
 CREDENTIAL_KEYWORDS = [
-    "whatsapp only", "contact on whatsapp", "no interview",
-    "no resume required", "direct joining", "same day joining",
-    "no verification", "no background check", "gmail account",
-    "yahoo email", "personal email", "no company website"
+    "whatsapp only", "contact on whatsapp",
+    "no interview", "no resume required",
+
+    # 👉 ADD THESE NEW
+    "dm on whatsapp", "message on telegram"
 ]
 
 ALL_SCAM_KEYWORDS = {

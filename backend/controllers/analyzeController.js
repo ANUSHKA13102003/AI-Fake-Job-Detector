@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const AI_API_URL = process.env.AI_API_URL || 'http://localhost:5001';
+const AI_API_URL = 'https://ai-model-1idz.onrender.com';
 
 // ── Scam keyword quick-check (Node-side pre-filter) ─────────────────────────
 const SCAM_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com'];
