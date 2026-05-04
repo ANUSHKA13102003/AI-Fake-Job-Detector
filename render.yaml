@@ -5,6 +5,9 @@ services:
     rootDir: frontend
     buildCommand: npm install && npm run build
     publishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://ai-fake-job-detector-backend.onrender.com
 
   - type: web_service
     name: ai-fake-job-detector-backend
@@ -12,6 +15,11 @@ services:
     rootDir: backend
     buildCommand: npm install
     startCommand: node server.js
+    envVars:
+      - key: AI_API_URL
+        value: https://ai-fake-job-detector-ai.onrender.com
+      - key: FRONTEND_URL
+        value: https://ai-fake-job-detector-frontend.onrender.com
 
   - type: web_service
     name: ai-fake-job-detector-ai

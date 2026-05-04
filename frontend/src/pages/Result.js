@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 
 const RISK_CONFIG = {
   Low: { color: '#1aff8c', bg: 'rgba(26,255,140,0.1)', border: 'rgba(26,255,140,0.3)', emoji: '✅', label: 'LOW RISK' },
@@ -16,7 +16,7 @@ const CATEGORY_ICONS = {
 
 function highlightKeywords(text, keywords) {
   if (!keywords || keywords.length === 0) return text;
-  const escaped = keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const escaped = keywords.map(k => k.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'));
   const regex = new RegExp(`(${escaped.join('|')})`, 'gi');
   const parts = text.split(regex);
   return parts.map((part, i) =>
@@ -42,7 +42,7 @@ function ScoreRing({ score, risk }) {
   }, [offset]);
 
   return (
-    <div className="relative w-40 h-40 mx-auto">
+    <div className="relative w-44 h-44 mx-auto">
       <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
         <circle cx="50" cy="50" r="40" fill="none" stroke="#1e1e2e" strokeWidth="8" />
         <circle
@@ -57,170 +57,167 @@ function ScoreRing({ score, risk }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display text-3xl font-800" style={{ fontFamily: "'Syne', sans-serif", color: cfg.color, fontWeight: 800 }}>{score}%</span>
-        <span className="font-mono text-xs text-brand-muted mt-0.5">FAKE SCORE</span>
+        <span className="font-display text-4xl font-800" style={{ fontFamily: "'Syne', sans-serif", color: cfg.color, fontWeight: 800 }}>{score}%</span>
+        <span className="font-mono text-xs text-brand-muted mt-1">RISK INDEX</span>
       </div>
     </div>
   );
 }
 
 export default function Result({ result, inputText, onReset }) {
-  const { score, risk, explanation, keywords, suspicious_sentences, categories_hit, meta } = result;
+  const { score, risk, explanation, keywords, suspicious_sentences, categories_hit } = result;
   const cfg = RISK_CONFIG[risk] || RISK_CONFIG.Low;
+  const [copyStatus, setCopyStatus] = useState('Copy summary');
 
-  const suggestions = {
+  const recommendations = {
     High: [
-      'Do NOT pay any registration or training fee — legitimate employers never ask this',
-      'Verify the company on LinkedIn or official websites before responding',
-      'Avoid sharing personal financial information',
-      'Report this job to the job portal where you found it',
+      'Do not transfer money for processing, registration, or training.',
+      'Verify the employer through official corporate channels.',
+      'Do not share bank or identity details until verified.',
+      'Report the posting if it appears in a job portal or social media listing.',
     ],
     Medium: [
-      'Research the company thoroughly before applying',
-      'Verify the contact email belongs to an official corporate domain',
-      'Ask for a formal offer letter before accepting',
-      'Be cautious if asked to share sensitive details early',
+      'Review company details and recruiter credibility before applying.',
+      'Ask for a formal interview invitation and signed offer letter.',
+      'Validate contact emails against official domains.',
+      'Maintain caution if the recruiter requests immediate action.',
     ],
     Low: [
-      'This posting appears legitimate — proceed with normal caution',
-      'Always verify job details through official company channels',
-      'Use LinkedIn to confirm the recruiter\'s identity',
+      'Proceed with normal application steps and maintain standard verification.',
+      'Confirm interview details through the listed company website.',
+      'Keep records of all job offer communication.',
     ],
+  };
+
+  const handleCopySummary = async () => {
+    const summary = `Fake Job Detector Report\nScore: ${score}%\nRisk: ${cfg.label}\nTop findings: ${explanation?.slice(0, 3).join('; ')}`;
+    await navigator.clipboard.writeText(summary);
+    setCopyStatus('Copied!');
+    setTimeout(() => setCopyStatus('Copy summary'), 1800);
   };
 
   return (
     <div className="noise-bg min-h-screen relative">
-      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full"
-          style={{ background: `radial-gradient(ellipse at center, ${cfg.color}10 0%, transparent 70%)` }} />
-      </div>
+      <div className="absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-[#21111f] to-transparent opacity-90" />
+      <div className="absolute left-10 top-24 h-72 w-72 rounded-full bg-[#e84040]/15 blur-3xl" />
 
-      <div className="relative z-10 max-w-3xl mx-auto px-4 py-10">
-        {/* Back button */}
-        <button onClick={onReset} className="flex items-center gap-2 text-brand-muted hover:text-brand-text mb-8 text-sm transition-colors group">
-          <span className="group-hover:-translate-x-1 transition-transform">←</span> Analyze another job
-        </button>
-
-        {/* Result header */}
-        <div className="rounded-2xl border p-8 mb-5 animate-fade-in"
-          style={{ background: '#12121a', borderColor: cfg.border }}>
-          <div className="flex flex-col sm:flex-row items-center gap-8">
-            <ScoreRing score={score} risk={risk} />
-            <div className="flex-1 text-center sm:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-600 mb-3 border"
-                style={{ background: cfg.bg, borderColor: cfg.border, color: cfg.color }}>
-                {cfg.emoji} {cfg.label}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-10">
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div>
+            <div className="rounded-[40px] border border-brand-border bg-brand-surface p-8 shadow-[0_30px_90px_rgba(0,0,0,0.2)]">
+              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-brand-muted">Analysis complete</p>
+                  <h1 className="text-4xl font-display font-black text-brand-text mt-2">Risk dashboard</h1>
+                </div>
+                <button
+                  onClick={onReset}
+                  className="rounded-full border border-brand-border px-5 py-3 text-sm text-brand-text transition hover:border-brand-accent hover:text-brand-accent"
+                >
+                  Scan another job
+                </button>
               </div>
-              <h2 className="font-display text-3xl font-800 mb-2" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }}>
-                {risk === 'High' ? '🚨 Likely a Scam' : risk === 'Medium' ? '⚠️ Suspicious Posting' : '✅ Appears Legitimate'}
-              </h2>
-              <p className="text-brand-muted text-sm leading-relaxed">
-                {risk === 'High'
-                  ? 'Multiple high-risk indicators detected. This job posting shows strong signs of being fraudulent.'
-                  : risk === 'Medium'
-                  ? 'Some suspicious patterns found. Proceed with caution and verify all details.'
-                  : 'No major red flags detected. This appears to be a legitimate job posting.'}
-              </p>
-              {/* Categories hit */}
-              {categories_hit && categories_hit.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {categories_hit.map(cat => (
-                    <span key={cat} className="text-xs px-2 py-1 rounded-lg border border-brand-border text-brand-muted font-mono">
-                      {CATEGORY_ICONS[cat] || '•'} {cat.replace(/_/g, ' ')}
-                    </span>
+
+              <div className="grid gap-6 xl:grid-cols-[1fr_1.1fr] items-center">
+                <div>
+                  <div className="rounded-[32px] border border-brand-border bg-[#10131f] p-6 text-center">
+                    <ScoreRing score={score} risk={risk} />
+                    <p className="mt-4 text-sm uppercase tracking-[0.2em] text-brand-muted">Overall risk score</p>
+                  </div>
+                </div>
+                <div className="space-y-5">
+                  <div className="rounded-[28px] border border-brand-border bg-[#11131f] p-6">
+                    <span className="inline-flex rounded-full bg-[#ffffff]/10 px-3 py-1 text-xs uppercase tracking-[0.25em] text-brand-muted">{cfg.label}</span>
+                    <h2 className="mt-4 text-3xl font-semibold text-brand-text">{risk === 'High' ? 'Likely scam detected' : risk === 'Medium' ? 'Potential risk found' : 'Looks authentic'}</h2>
+                    <p className="mt-3 text-sm leading-7 text-brand-muted">{risk === 'High'
+                      ? 'Strong indicators suggest this posting is fraudulent. Avoid further contact.'
+                      : risk === 'Medium'
+                      ? 'The posting contains concerning patterns. Proceed with caution.'
+                      : 'No significant scam indicators were found in this analysis.'}
+                    </p>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-[28px] border border-brand-border bg-[#10131f] p-5">
+                      <p className="text-xs uppercase tracking-[0.25em] text-brand-muted">Source</p>
+                      <p className="mt-3 text-lg text-brand-text">{inputText.startsWith('[File:') ? 'Uploaded file' : inputText.startsWith('http') ? 'Job URL' : 'Job text'}</p>
+                    </div>
+                    <div className="rounded-[28px] border border-brand-border bg-[#10131f] p-5">
+                      <p className="text-xs uppercase tracking-[0.25em] text-brand-muted">Confidence</p>
+                      <p className="mt-3 text-lg text-brand-text">High</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-6 xl:grid-cols-2">
+              <div className="rounded-[32px] border border-brand-border bg-brand-surface p-6">
+                <h2 className="font-display text-xl font-semibold text-brand-text mb-4">Risk summary</h2>
+                <ul className="space-y-3 text-sm text-brand-muted">
+                  {(explanation || []).slice(0, 4).map((item, index) => (
+                    <li key={index} className="rounded-3xl border border-[#ffffff]/10 bg-[#12131f] p-4">
+                      <div className="text-sm text-brand-muted mb-2">Indicator {index + 1}</div>
+                      <p>{item}</p>
+                    </li>
                   ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Explanation */}
-        {explanation && explanation.length > 0 && (
-          <div className="rounded-2xl border border-brand-border p-6 mb-5 animate-slide-up" style={{ background: '#12121a', animationDelay: '0.1s', opacity: 0 }}>
-            <h3 className="font-display font-700 text-base mb-4 text-brand-text" style={{ fontFamily: "'Syne', sans-serif" }}>
-              🔍 Risk Indicators Found
-            </h3>
-            <ul className="space-y-2">
-              {explanation.map((item, i) => (
-                <li key={i} className="flex gap-3 text-sm text-brand-muted leading-relaxed">
-                  <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-mono"
-                    style={{ background: 'rgba(232,64,64,0.15)', color: '#e84040' }}>{i + 1}</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Suspicious sentences with keyword highlighting */}
-        {suspicious_sentences && suspicious_sentences.length > 0 && (
-          <div className="rounded-2xl border border-brand-border p-6 mb-5 animate-slide-up" style={{ background: '#12121a', animationDelay: '0.2s', opacity: 0 }}>
-            <h3 className="font-display font-700 text-base mb-4 text-brand-text" style={{ fontFamily: "'Syne', sans-serif" }}>
-              🚩 Flagged Lines
-            </h3>
-            <div className="space-y-3">
-              {suspicious_sentences.map((sent, i) => (
-                <div key={i} className="p-3 rounded-xl text-sm leading-relaxed"
-                  style={{ background: 'rgba(232,64,64,0.06)', border: '1px solid rgba(232,64,64,0.15)', color: '#f0f0ff', fontFamily: "'DM Sans', sans-serif" }}>
-                  {highlightKeywords(sent, keywords)}
-                </div>
-              ))}
-            </div>
-            {keywords && keywords.length > 0 && (
-              <div className="mt-4">
-                <p className="text-xs text-brand-muted mb-2 font-mono">DETECTED KEYWORDS:</p>
-                <div className="flex flex-wrap gap-2">
-                  {keywords.map(kw => (
-                    <span key={kw} className="highlight-keyword text-xs px-2 py-1 rounded">{kw}</span>
+                </ul>
+              </div>
+              <div className="rounded-[32px] border border-brand-border bg-brand-surface p-6">
+                <h2 className="font-display text-xl font-semibold text-brand-text mb-4">Recommendations</h2>
+                <ul className="space-y-3 text-sm text-brand-muted">
+                  {(recommendations[risk] || recommendations.Low).map((item, index) => (
+                    <li key={index} className="rounded-3xl border border-[#ffffff]/10 bg-[#12131f] p-4">
+                      <p>{item}</p>
+                    </li>
                   ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Email warning */}
-        {meta?.emailWarning && (
-          <div className="rounded-xl border p-4 mb-5 text-sm"
-            style={{ background: 'rgba(255,184,48,0.08)', borderColor: 'rgba(255,184,48,0.3)', color: '#ffb830' }}>
-            🔒 <strong>Domain warning:</strong> {meta.emailWarning}
-          </div>
-        )}
-
-        {/* Suggestions */}
-        <div className="rounded-2xl border border-brand-border p-6 mb-5 animate-slide-up" style={{ background: '#12121a', animationDelay: '0.3s', opacity: 0 }}>
-          <h3 className="font-display font-700 text-base mb-4 text-brand-text" style={{ fontFamily: "'Syne', sans-serif" }}>
-            💡 Recommendations
-          </h3>
-          <ul className="space-y-3">
-            {(suggestions[risk] || suggestions.Low).map((s, i) => (
-              <li key={i} className="flex gap-3 text-sm text-brand-muted leading-relaxed">
-                <span className="mt-0.5 text-brand-safe flex-shrink-0">→</span>
-                {s}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Original text preview */}
-        {inputText && !inputText.startsWith('[File:') && (
-          <details className="rounded-2xl border border-brand-border animate-slide-up" style={{ background: '#12121a', animationDelay: '0.4s', opacity: 0 }}>
-            <summary className="p-5 cursor-pointer text-sm text-brand-muted hover:text-brand-text transition-colors">
-              View analyzed text
-            </summary>
-            <div className="px-5 pb-5">
-              <div className="p-4 rounded-xl text-sm leading-relaxed" style={{ background: '#0a0a0f', color: '#f0f0ff', fontFamily: "'DM Sans', sans-serif", whiteSpace: 'pre-wrap' }}>
-                {highlightKeywords(inputText, keywords)}
+                </ul>
               </div>
             </div>
-          </details>
-        )}
+          </div>
 
-        <button onClick={onReset} className="mt-6 w-full py-4 rounded-xl font-display font-700 text-base transition-all hover:scale-[1.01] border border-brand-border text-brand-muted hover:text-brand-text"
-          style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700 }}>
-          ← Analyze Another Job
-        </button>
+          <aside className="space-y-6">
+            <div className="rounded-[40px] border border-brand-border bg-brand-surface p-6 shadow-[0_30px_80px_rgba(0,0,0,0.18)]">
+              <div className="mb-5 flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-brand-muted">Live insights</p>
+                  <h2 className="text-2xl font-semibold text-brand-text">Dashboard view</h2>
+                </div>
+                <button onClick={handleCopySummary} className="rounded-full border border-brand-border px-3 py-2 text-xs text-brand-muted hover:text-brand-text transition">{copyStatus}</button>
+              </div>
+
+              <div className="space-y-5">
+                <div className="rounded-[28px] border border-brand-border bg-[#10131f] p-5">
+                  <p className="text-xs uppercase tracking-[0.25em] text-brand-muted">Flagged categories</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {(categories_hit || []).map((cat) => (
+                      <span key={cat} className="rounded-full bg-[#11131f] px-3 py-1 text-xs text-brand-text">{CATEGORY_ICONS[cat] || '•'} {cat.replace(/_/g, ' ')}</span>
+                    ))}
+                    {!(categories_hit && categories_hit.length) && (
+                      <span className="rounded-full bg-[#11131f] px-3 py-1 text-xs text-brand-muted">No categories flagged</span>
+                    )}
+                  </div>
+                </div>
+                <div className="rounded-[28px] border border-brand-border bg-[#10131f] p-5">
+                  <p className="text-xs uppercase tracking-[0.25em] text-brand-muted">Top keywords</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {(keywords || []).map((keyword) => (
+                      <span key={keyword} className="rounded-full bg-[#11131f] px-3 py-1 text-xs text-brand-text">{keyword}</span>
+                    ))}
+                    {!(keywords && keywords.length) && <span className="rounded-full bg-[#11131f] px-3 py-1 text-xs text-brand-muted">No keywords found</span>}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[40px] border border-brand-border bg-[#0d101d] p-6">
+              <p className="text-xs uppercase tracking-[0.3em] text-brand-muted">Report</p>
+              <p className="mt-4 text-sm leading-7 text-brand-muted">Download the findings or share them with your team to ensure the posting is properly reviewed before any engagement.</p>
+              <button className="mt-6 w-full rounded-[28px] bg-gradient-to-r from-brand-accent to-[#c13535] px-5 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition hover:brightness-110">
+                Export report
+              </button>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );

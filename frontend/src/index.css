@@ -17,6 +17,10 @@ body {
 ::-webkit-scrollbar-track { background: #0a0a0f; }
 ::-webkit-scrollbar-thumb { background: #1e1e2e; border-radius: 3px; }
 
+html {
+  scroll-behavior: smooth;
+}
+
 .noise-bg {
   position: relative;
 }
@@ -41,4 +45,44 @@ body {
   stroke-dasharray: 251.2;
   stroke-dashoffset: 251.2;
   transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bg-brand-surface {
+  background-color: #12121a;
+}
+
+.border-brand-border {
+  border-color: rgba(148,163,184,0.15);
+}
+
+.text-brand-text {
+  color: #f0f0ff;
+}
+
+.text-brand-muted {
+  color: #9ca3af;
+}
+
+.text-brand-accent {
+  color: #e84040;
+}
+
+.animate-fade-in {
+  opacity: 0;
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+.animate-slide-up {
+  opacity: 0;
+  animation: slide-up 0.55s ease-out forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
