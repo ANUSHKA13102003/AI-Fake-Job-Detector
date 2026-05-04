@@ -1,0 +1,21 @@
+services:
+  - type: static_site
+    name: ai-fake-job-detector-frontend
+    env: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishPath: build
+
+  - type: web_service
+    name: ai-fake-job-detector-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+
+  - type: web_service
+    name: ai-fake-job-detector-ai
+    env: python
+    rootDir: ai-model
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
